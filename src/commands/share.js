@@ -40,12 +40,18 @@ export default class ShareCommand extends Command {
 
             const outputArray = await runCode(code);
 
-            await interaction.reply({
-                content: `\`\`\`diff\n${
-                    outputArray.map(output => `${output.type === 'log' ? '+' : '-' } ${output.content}`).join('\n')
-                }\n\`\`\``,
-                ephemeral: true
-            });
+            if (outputArray.length > 0)
+                await interaction.reply({
+                    content: `\`\`\`diff\n${
+                        outputArray.map(output => `${output.type === 'log' ? '+' : '-' } ${output.content}`).join('\n')
+                    }\n\`\`\``,
+                    ephemeral: true
+                });
+            else
+                await interaction.reply({
+                    content: 'No output',
+                    ephemeral: true
+                });
         } else if (buttonId.startsWith('delete-message?')) {
             const userId = buttonId.split('?')[1];
 
