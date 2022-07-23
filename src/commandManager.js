@@ -1,4 +1,4 @@
-import { Routes, Client, BaseInteraction } from 'discord.js';
+import { Routes, Client, BaseInteraction, InteractionType } from 'discord.js';
 import { readdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { REST } from '@discordjs/rest';
@@ -19,7 +19,6 @@ export class CommandManager {
         this.import_path = import_path;
         this.ignore_files = ignore_files;
 
-        // initialize the commands object to store the loaded commands
         this.commands = {};
     }
 
@@ -66,6 +65,51 @@ export class CommandManager {
 
         if (command) {
             await command.run(client, interaction);
+        }
+    }
+
+    /**
+     * Handle button click
+     * @param {Client} client - The Discord client
+     * @param {BaseInteraction} interaction - The interaction triggered by the user
+     */
+    async handleButtonClick(client, interaction) {
+        if (!interaction.isButton())
+            return;
+
+        const { customId } = interaction;
+
+        if (!customId.startsWith('command:'))
+            return;
+
+        const [commandName, buttonId] = customId.split(':').slice(1);
+
+        const command = this.commands[commandName];
+
+        if (command) {
+            await command.handleButtonClick(client, interaction, buttonId);
+        }
+    }
+
+    /**
+     * Handle modal submit
+     * @param {Client} client - The Discord client
+     * @param {BaseInteraction} interaction - The interaction triggered by the user
+     */
+    async handleModalSubmit(client, interaction) {
+        if (interaction.type !== InteractionType.ModalSubmit) return;
+
+        const { customId } = interaction;
+
+        if (!customId.startsWith('command:'))
+            return;
+
+        const [commandName, modalId] = customId.split(':').slice(1);
+
+        const command = this.commands[commandName];
+
+        if (command) {
+            await command.handleModalSubmit(client, interaction, modalId);
         }
     }
 }
