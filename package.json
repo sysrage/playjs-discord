@@ -1,0 +1,30 @@
+{
+  "name": "playjs-discord",
+  "version": "1.0.0",
+  "description": "A discord bot made for javascript servers, made to share and run JavaScript expressions.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node -r dotenv/config src/index.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hadaward/playjs-discord.git"
+  },
+  "keywords": [
+    "playjs",
+    "playjs-discord",
+    "pjs-discord",
+    "pjs"
+  ],
+  "author": "Hadaward",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Hadaward/playjs-discord/issues"
+  },
+  "homepage": "https://github.com/Hadaward/playjs-discord#readme",
+  "dependencies": {
+    "discord.js": "^14.0.3",
+    "dotenv": "^16.0.1"
+  }
+}
