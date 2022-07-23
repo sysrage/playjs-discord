@@ -14,21 +14,22 @@ export const sandbox = new Isolate({
 export async function runCode(code) {
     const output = [];
 
-    const context = await sandbox.createContext();
-    const { global: jail } = context;
-
-    jail.setSync('global', jail.derefInto());
-
-    const addOutput = (...args) => {
-        // Remove oldest output if we have more than 15 messages
-        if (output.length > 15)
-            for (let k=0; k<args.length; k++)
-                output.shift();
-
-        output.push(...args);
-    }
-
     try {
+        const context = await sandbox.createContext();
+        const { global: jail } = context;
+
+        jail.setSync('global', jail.derefInto());
+
+        const addOutput = (...args) => {
+            if (output.length === 15)
+                output.push({ type: 'log', content: '...' });
+    
+            if (output.length > 15)
+                return;
+    
+            output.push(...args);
+        }
+
         const jailConsole = jail.getSync('console');
 
         jailConsole.setSync("log", (...args) => {
@@ -56,7 +57,7 @@ export async function runCode(code) {
         const script = await sandbox.compileScript(code);
 
         const evaluated = await script.run(context, {
-            timeout: 200,
+            timeout: 100,
         });
 
         if (evaluated) {

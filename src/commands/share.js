@@ -38,20 +38,27 @@ export default class ShareCommand extends Command {
             // remove backstips and "js" from the start of the code
             const code = content.substring(6, content.length - 3);
 
-            const outputArray = await runCode(code);
+            try {
+                const outputArray = await runCode(code);
 
-            if (outputArray.length > 0)
+                if (outputArray.length > 0)
+                    await interaction.reply({
+                        content: `\`\`\`diff\n${
+                            outputArray.map(output => `${output.type === 'log' ? '+' : '-' } ${output.content}`).join('\n')
+                        }\n\`\`\``,
+                        ephemeral: true
+                    });
+                else
+                    await interaction.reply({
+                        content: 'No output',
+                        ephemeral: true
+                    });
+            } catch (error) {
                 await interaction.reply({
-                    content: `\`\`\`diff\n${
-                        outputArray.map(output => `${output.type === 'log' ? '+' : '-' } ${output.content}`).join('\n')
-                    }\n\`\`\``,
+                    content: `\`\`\`diff\n- ${ error.toString() }\n\`\`\``,
                     ephemeral: true
                 });
-            else
-                await interaction.reply({
-                    content: 'No output',
-                    ephemeral: true
-                });
+            }
         } else if (buttonId.startsWith('delete-message?')) {
             const userId = buttonId.split('?')[1];
 
