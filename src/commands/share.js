@@ -1,7 +1,6 @@
 import { TextInputBuilder, TextInputStyle } from 'discord.js';
 import { ActionRowBuilder, ModalBuilder, } from 'discord.js';
 import { ButtonBuilder, ButtonStyle } from 'discord.js';
-import e from 'express';
 import { Command } from '../utils/command.js';
 import { runCode } from '../utils/sandbox.js';
 
