@@ -1,17 +1,18 @@
-import path from 'node:path';
 import { createInterface } from 'node:readline';
-import url from 'node:url';
+import path from 'node:path';
 import dotenv from 'dotenv';
+import "./utils/dirname.js";
 
 import { Client, GatewayIntentBits, InteractionType } from 'discord.js';
-import { CommandManager } from './commandManager.js';
+import { CommandManager } from './utils/commandManager.js';
 
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+dotenv.config({
+    path: path.resolve(__dirname, '../.env')
+});
 
-dotenv.config( { path: path.resolve(__dirname, '../.env') });
 const appToken = process.env.DISCORD_BOT_TOKEN;
 
-const commandManager = new CommandManager(appToken, path.resolve(__dirname, 'commands'), ['command.js']);
+const commandManager = new CommandManager(appToken, path.resolve(__dirname, 'commands'));
 await commandManager.loadCommands();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });

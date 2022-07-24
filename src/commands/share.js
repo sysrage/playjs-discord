@@ -1,8 +1,9 @@
 import { TextInputBuilder, TextInputStyle } from 'discord.js';
 import { ActionRowBuilder, ModalBuilder, } from 'discord.js';
 import { ButtonBuilder, ButtonStyle } from 'discord.js';
-import { Command } from './command.js';
-import { runCode } from '../sandbox.js';
+import e from 'express';
+import { Command } from '../utils/command.js';
+import { runCode } from '../utils/sandbox.js';
 
 export default class ShareCommand extends Command {
     constructor() {
@@ -51,8 +52,8 @@ export default class ShareCommand extends Command {
                                     ? '32'
                                     : '31' 
                                 }m ${
-                                    // add zero-width space after each backstick
-                                    String(output.content).replace(/``/g, '`​`')
+                                    // add zero-width space after first backstick
+                                    String(output.content).replace(/```/g, '`​``')
                                 }`
                             )
                             .join('\n')
@@ -81,6 +82,46 @@ export default class ShareCommand extends Command {
                     ephemeral: true
                 });
             }
+        } else if (buttonId.startsWith('edit-message?')) {
+            const [userId, messageId] = buttonId.split('?')[1].split(",");
+
+            if (userId !== interaction.user.id) {
+                await interaction.reply({
+                    content: 'You can only delete your own messages',
+                    ephemeral: true
+                });
+
+                return;
+            }
+            
+            try {
+                const message = await interaction.channel.messages.fetch(messageId);
+
+                const modal = new ModalBuilder()
+                    .setCustomId(`command:${ this.options.name }:EditCodeModal?${ messageId }`)
+                    .setTitle('Edit JS Code');
+
+                const inputCode = new TextInputBuilder()
+                    .setCustomId('code')
+                    .setLabel('Type or paste the code you want to edit')
+                    .setMaxLength(2000)
+                    .setRequired(true)
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setValue(message.content.substring(6, message.content.length - 3));
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(inputCode)
+                );
+
+                await interaction.showModal(modal);
+            } catch(error) {
+                await interaction.reply({
+                    content: `Could not fetch message: ${ error.toString() }`,
+                    ephemeral: true
+                });
+
+                return;
+            }
         }
     }
 
@@ -93,7 +134,7 @@ export default class ShareCommand extends Command {
                     new ButtonBuilder()
                         .setCustomId(`command:${ this.options.name }:run-code`)
                         .setLabel('Run code')
-                        .setStyle(ButtonStyle.Primary),
+                        .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
                         .setCustomId(`command:${ this.options.name }:delete-message?${ interaction.user.id }`)
                         .setLabel('Delete message')
@@ -101,8 +142,39 @@ export default class ShareCommand extends Command {
                 );
 
             await interaction.reply({
-                content: `\`\`\`js\n${ code.replace(/``/g, '`​`') }\n\`\`\``,
+                content: `\`\`\`js\n${
+                    code.replace(/```/g, '`​``')
+                }\n\`\`\``,
                 components: [row]
+            });
+
+            const message = await interaction.fetchReply();
+
+            row.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`command:${ this.options.name }:edit-message?${ interaction.user.id },${ message.id }`)
+                    .setLabel('Edit message')
+                    .setStyle(ButtonStyle.Primary)
+            );
+
+            await interaction.editReply({
+                components: [row]
+            });
+        } else if (modalId.startsWith('EditCodeModal')) {
+            const code = interaction.fields.getTextInputValue('code');
+            const messageId = modalId.split('?')[1];
+
+            const message = await interaction.channel.messages.fetch(messageId);
+
+            await message.edit({
+                content: `\`\`\`js\n${
+                    code.replace(/```/g, '`​``')
+                }\n\`\`\``
+            });
+
+            await interaction.reply({
+                content: 'Message edited',
+                ephemeral: true
             });
         }
     }

@@ -28,7 +28,7 @@ export class Command {
     }
 
     /**
-     * Override this method to implement your own command logic
+     * Override this method to implement your own modal submit logic
      * @param {Client} client - The Discord client
      * @param {BaseInteraction} interaction - The interaction that triggered the command
      * @param {String} modalId - The ID of the modal that was submitted

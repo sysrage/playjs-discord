@@ -20,6 +20,7 @@ export class CommandManager {
         assert.equal(Array.isArray(ignore_files), true, "ignore_files must be an array");
 
         rest.setToken(app_token);
+
         this.import_path = import_path;
         this.ignore_files = ignore_files;
 
@@ -35,7 +36,13 @@ export class CommandManager {
                 // ignore files that are in the ignore_files array
                 if (this.ignore_files.includes(file))
                     continue;
-                const commandModule = await import(url.pathToFileURL(`${join(this.import_path, file)}`));
+
+                const commandModule = await import(
+                    url.pathToFileURL(`${
+                        join(this.import_path, file)
+                    }`)
+                );
+
                 const command = new commandModule.default;
                 this.commands[command.options.name] = command;
             }
