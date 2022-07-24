@@ -4,7 +4,7 @@
   "description": "A discord bot made for javascript servers, made to share and run JavaScript expressions.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node -r dotenv/config src/index.js --untrusted-code-mitigations"
+    "start": "node src/index.js --untrusted-code-mitigations"
   },
   "type": "module",
   "repository": {
