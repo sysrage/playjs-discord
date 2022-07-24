@@ -143,7 +143,7 @@ export default class ShareCommand extends Command {
             await interaction.reply({
                 content: `\`\`\`js\n${
                     code.replace(/```/g, '`​``')
-                }\n\`\`\``,
+                }\`\`\``,
                 components: [row]
             });
 
