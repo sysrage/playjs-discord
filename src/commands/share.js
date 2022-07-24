@@ -43,8 +43,19 @@ export default class ShareCommand extends Command {
 
                 if (outputArray.length > 0)
                     await interaction.reply({
-                        content: `\`\`\`diff\n${
-                            outputArray.map(output => `${output.type === 'log' ? '+' : '-' } ${output.content}`).join('\n')
+                        content: `\`\`\`ansi\n${
+                            outputArray.map(
+                                output =>
+                                `\u001b[0;${
+                                    output.type === 'log'
+                                    ? '32'
+                                    : '31' 
+                                }m ${
+                                    // add zero-width space after each backstick
+                                    String(output.content).replace(/`/g, '`​')
+                                }`
+                            )
+                            .join('\n')
                         }\n\`\`\``,
                         ephemeral: true
                     });
@@ -90,7 +101,7 @@ export default class ShareCommand extends Command {
                 );
 
             await interaction.reply({
-                content: `\`\`\`js\n${ code }\n\`\`\``,
+                content: `\`\`\`js\n${ code.replace(/`/g, '`​') }\n\`\`\``,
                 components: [row]
             });
         }

@@ -57,7 +57,7 @@ export async function runCode(code) {
         const script = await sandbox.compileScript(code);
 
         const evaluated = await script.run(context, {
-            timeout: 100,
+            timeout: 80,
         });
 
         if (evaluated) {
