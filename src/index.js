@@ -1,8 +1,17 @@
+import path from 'node:path';
+import { createInterface } from 'node:readline';
+import url from 'node:url';
+import dotenv from 'dotenv';
+
 import { Client, GatewayIntentBits, InteractionType } from 'discord.js';
 import { CommandManager } from './commandManager.js';
-import { createInterface } from 'node:readline';
 
-const commandManager = new CommandManager('src/commands', ['command.js']);
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+
+dotenv.config( { path: path.resolve(__dirname, '../.env') });
+const appToken = process.env.DISCORD_BOT_TOKEN;
+
+const commandManager = new CommandManager(appToken, path.resolve(__dirname, 'commands'), ['command.js']);
 await commandManager.loadCommands();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -37,4 +46,4 @@ readLine.on('SIGINT', () => {
 });
 
 // Login to discord bot client
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(appToken);

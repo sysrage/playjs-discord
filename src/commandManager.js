@@ -1,10 +1,12 @@
-import { Routes, Client, BaseInteraction, InteractionType } from 'discord.js';
 import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import url from 'node:url';
+
+import { Routes, Client, BaseInteraction, InteractionType } from 'discord.js';
 import assert from 'node:assert/strict';
 import { REST } from '@discordjs/rest';
-import { join } from 'node:path';
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);
+const rest = new REST({ version: '10' });
 
 /** Manages commands */
 export class CommandManager {
@@ -12,10 +14,12 @@ export class CommandManager {
         @param {string} import_path - The path to the directory containing the commands
         @param {string[]} ignore_files - The files to ignore when loading commands
     */
-    constructor(import_path = "", ignore_files = []) {
+    constructor(app_token = "", import_path = "", ignore_files = []) {
+        assert.equal(typeof app_token, "string", "app_token must be a string");
         assert.equal(typeof import_path, "string", "import_path must be a string");
         assert.equal(Array.isArray(ignore_files), true, "ignore_files must be an array");
 
+        rest.setToken(app_token);
         this.import_path = import_path;
         this.ignore_files = ignore_files;
 
@@ -31,8 +35,7 @@ export class CommandManager {
                 // ignore files that are in the ignore_files array
                 if (this.ignore_files.includes(file))
                     continue;
-
-                const commandModule = await import(`../${join(this.import_path, file)}`);
+                const commandModule = await import(url.pathToFileURL(`${join(this.import_path, file)}`));
                 const command = new commandModule.default;
                 this.commands[command.options.name] = command;
             }
