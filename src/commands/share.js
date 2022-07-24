@@ -52,7 +52,7 @@ export default class ShareCommand extends Command {
                                     : '31' 
                                 }m ${
                                     // add zero-width space after each backstick
-                                    String(output.content).replace(/`/g, '`​')
+                                    String(output.content).replace(/``/g, '`​`')
                                 }`
                             )
                             .join('\n')
